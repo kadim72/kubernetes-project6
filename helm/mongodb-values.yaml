@@ -1,0 +1,24 @@
+architecture: replicaset
+resources:
+  limits:
+    cpu: 2500m
+    memory: 2Gi
+  requests:
+    cpu: 500m
+    memory: 600Mi
+auth:
+  enabled: true
+tls:
+  enabled: false
+replicaCount: 1
+persistence:
+  storageClass: "premium-rwo"
+  size: 1Gi
+metrics:
+  enabled: true
+# set parameter options
+# configuration: |- 
+#   storage:
+#     dbPath: /bitnami/mongodb/data/db
+#   setParameter:
+#     enableLocalhostAuthBypass: true

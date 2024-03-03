@@ -1,0 +1,49 @@
+apiVersion: batch/v1 
+kind: Job 
+metadata:
+ name: mongodb-restore
+spec:
+  # parallelism: 3
+  # completions: 3
+  # completionMode: Indexed
+  # ttlSecondsAfterFinished: 5
+  # activeDeadlineSeconds: 3
+  template:
+    spec: 
+      restartPolicy: OnFailure
+      containers:  
+        - name: mongodb-restauration-container
+          image: kadim72/backupmongodbgcs 
+          command: 
+            - "/bin/sh"
+            - "-c"
+            - |
+              echo "Authentification sur gcs"
+              gcloud auth activate-service-account --key-file=/etc/gcs-credentials/service-account.json
+              echo "telechargement du Dump ..." 
+              gsutil cp -r gs://backup-mongodb-tt01/dump.gz  /tmp/dump.gz 
+              echo "decompression"
+              gunzip /tmp/dump.gz
+
+              echo "restauration BD"
+              mongorestore --drop  --uri="mongodb://${MONGODB_USER}:${MONGODB_PASSWORD}@${MONGODB_HOST}" --archive="/tmp/dump"
+              echo "restauration BD  finish"
+          env:
+            - name: MONGODB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb 
+                  key: mongodb-root-password
+            - name: MONGODB_USER
+              value: root 
+            - name: MONGODB_HOST 
+              value: mongodb-headless:27017
+          volumeMounts:
+            - name: gcs-credentials 
+              mountPath: /etc/gcs-credentials/
+      volumes: 
+        - name: gcs-credentials
+          secret: 
+            secretName: gcs-credentials
+      
+
