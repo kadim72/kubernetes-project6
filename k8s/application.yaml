@@ -7,7 +7,7 @@ spec:
   project: default
   source: 
     repoURL: https://github.com/kadim72/kubernetes-project6.git
-    targetRevision: master
+    targetRevision: main
     path: k8s
   destination: 
     server: https://kubernetes.default.svc
